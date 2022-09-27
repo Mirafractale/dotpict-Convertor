@@ -1,0 +1,57 @@
+dialog "jpg;*.jpeg;*.png;*.bmp",16,"picture"
+if stat !=1 : end
+file_name = refstr
+
+color_degain = 1
+/*
+24color 54
+*/
+
+
+picload file_name
+buffer 2
+picload file_name
+
+sdim color_out
+sdim color_out_l
+
+repeat ginfo_winx
+    x_now = cnt
+    repeat ginfo_winy
+        y_now = cnt
+        pget x_now, y_now
+        color_now = (16777216 - ((ginfo_r/color_degain*color_degain) * 256 * 256 + (ginfo_g/color_degain*color_degain) * 256 + (ginfo_b/color_degain*color_degain) )) * -1
+        color_out_l = color_out_l + color_now + "\n"
+        color_out = color_out + color_now + ","
+        await
+    loop
+loop
+
+split color_out_l, "\n", color_out_l
+sdim color_un
+repeat length(color_out_l)
+    co_n = cnt
+    isCl = 0
+    repeat cl
+        if color_un(cnt) = color_out_l(co_n){
+            isCl = 1
+        }
+    loop
+    if isCl = 0{
+        color_un(cl) = color_out_l(co_n)
+        cl++
+    }
+    await
+loop
+
+color_out_l = ""
+
+repeat cl 
+    color_out_l = color_un(cnt) + "," + color_out_l
+    await
+loop
+screen 1,500,500
+mesbox color_out, 500, 500
+screen 3,500,500
+title str(cl - 1)
+mesbox color_out_l, 500, 500
